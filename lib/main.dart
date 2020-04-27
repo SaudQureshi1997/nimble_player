@@ -24,6 +24,11 @@ List<Song> parseSongInfo(List<SongInfo> songList) {
   return songs;
 }
 
+// class MyApp extends StatefulWidget {
+//   @override
+//   MyAppState createState() => MyAppState();
+// }
+
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -51,7 +56,13 @@ class MyApp extends StatelessWidget {
               caption: TextStyle(color: Colors.grey, fontSize: 14),
             )),
         onGenerateRoute: Router.generateRoutes,
-        home: MainList(),
+        home: WillPopScope(
+          onWillPop: () async {
+            await Provider.of<PlayList>(context).stopSong();
+            return true;
+          },
+          child: MainList(),
+        ),
       ),
     );
   }

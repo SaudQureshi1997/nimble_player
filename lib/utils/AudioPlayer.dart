@@ -34,7 +34,9 @@ class AudioPlayer {
           smallIconFileName: '@mipmap/ic_launcher',
           title: song.title,
           subTitle: song.albumName,
-          largeIconUrl: song.albumCover,
+          largeIconUrl: song.albumCover.isEmpty
+              ? Song.defaultAlbumCover
+              : song.albumCover,
           isLocal: true,
           notificationActionCallbackMode: NotificationActionCallbackMode.CUSTOM,
           notificationDefaultActions: NotificationDefaultActions.ALL,

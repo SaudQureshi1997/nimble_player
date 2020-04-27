@@ -11,47 +11,49 @@ class Player extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
-    return Consumer<PlayList>(
-      builder: (context, playList, child) {
-        if (playList.currentlyPlayingId == -1) {
-          return null;
-        }
+    return Consumer<PlayList>(builder: (context, playList, child) {
+      if (playList.currentlyPlayingId == -1) {
+        return null;
+      }
 
-        return Positioned(
-            bottom: 0,
-            right: 0,
-            child: Card(
-              child: Container(
-                width: width * 0.98,
-                color: Colors.grey.shade900,
-                child: Flex(
-                  direction: Axis.horizontal,
-                  children: <Widget>[
-                    Expanded(
-                      flex: 5,
-                      child: InkWell(
-                        splashColor: Colors.white,
-                        highlightColor: Colors.white,
-                        onTap: () => Navigator.pushNamed(context, 'show'),
-                        child: Container(
-                          padding: EdgeInsets.symmetric(vertical: 5),
-                          child: songDetails(playList),
-                        ),
-                      ),
+      return Positioned(
+        bottom: 0,
+        right: 0,
+        child: Card(
+          child: Container(
+            width: width * 0.98,
+            color: Colors.grey.shade900,
+            child: Flex(
+              direction: Axis.horizontal,
+              children: <Widget>[
+                Expanded(
+                  flex: 3,
+                  child: InkWell(
+                    splashColor: Colors.white,
+                    highlightColor: Colors.white,
+                    onTap: () => Navigator.pushNamed(context, 'show'),
+                    child: Container(
+                      padding: EdgeInsets.symmetric(vertical: 5),
+                      child: songDetails(playList),
                     ),
-                    Expanded(
-                      flex: 3,
-                      child: Container(
-                        padding: EdgeInsets.symmetric(vertical: 5),
-                        child: controls(playList),
-                      ),
-                    )
-                  ],
+                  ),
                 ),
-              ),
+                Expanded(
+                  flex: 2,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(vertical: 5),
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: controls(playList),
+                    ),
+                  ),
+                )
+              ],
             ),
-        );
-      });
+          ),
+        ),
+      );
+    });
   }
 
   Widget songDetails(PlayList playList) {
@@ -87,14 +89,27 @@ class Player extends StatelessWidget {
             alignment: WrapAlignment.spaceAround,
             crossAxisAlignment: WrapCrossAlignment.start,
             children: <Widget>[
-              Text(song.title, overflow: TextOverflow.fade,),
+              Text(
+                song.title,
+                overflow: TextOverflow.fade,
+              ),
               Wrap(
                 spacing: 5,
                 crossAxisAlignment: WrapCrossAlignment.center,
                 children: <Widget>[
-                  Text(song.albumName, overflow: TextOverflow.fade,),
-                  Icon(Icons.brightness_1, color: Colors.white, size: 5,),
-                  Text(song.durationInSeconds.toStringAsFixed(2), overflow: TextOverflow.fade,),
+                  Text(
+                    song.albumName,
+                    overflow: TextOverflow.fade,
+                  ),
+                  Icon(
+                    Icons.brightness_1,
+                    color: Colors.white,
+                    size: 5,
+                  ),
+                  Text(
+                    song.durationInSeconds.toStringAsFixed(2),
+                    overflow: TextOverflow.fade,
+                  ),
                 ],
               ),
             ],
@@ -110,8 +125,8 @@ class Player extends StatelessWidget {
       direction: Axis.horizontal,
       children: <Widget>[
         actionButton(Icons.skip_previous, playList.playPrevious),
-        actionButton(song.playing ? Icons.pause : Icons.play_arrow,
-            playList.toggleSong),
+        actionButton(
+            song.playing ? Icons.pause : Icons.play_arrow, playList.toggleSong),
         actionButton(Icons.skip_next, playList.playNext)
       ],
     );

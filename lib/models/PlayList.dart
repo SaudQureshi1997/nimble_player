@@ -144,6 +144,7 @@ class PlayList extends ChangeNotifier {
 
   Future<void> stopSong() async {
     currentlyPlaying?.playingAt(0);
+    print(currentlyPlaying.title);
     if (currentlyPlaying?.playing == true) {
       await player.stop();
     }
@@ -178,9 +179,8 @@ class PlayList extends ChangeNotifier {
       return;
     }
 
-    currentlyPlayingId = songIds.elementAt(currentIndex + 1);
-    currentlyPlaying = findById(currentlyPlayingId);
-    await player.play(currentlyPlaying);
+    int id = songIds.elementAt(currentIndex + 1);
+    await playSong(id);
     notifyListeners();
   }
 
@@ -191,9 +191,8 @@ class PlayList extends ChangeNotifier {
       return;
     }
 
-    currentlyPlayingId = songIds.elementAt(currentIndex - 1);
-    currentlyPlaying = findById(currentlyPlayingId);
-    await player.play(currentlyPlaying);
+    int id = songIds.elementAt(currentIndex - 1);
+    await playSong(id);
     notifyListeners();
   }
 
@@ -212,6 +211,7 @@ class PlayList extends ChangeNotifier {
 
   @override
   void dispose() {
+    player.stop();
     player.dispose();
     super.dispose();
   }
