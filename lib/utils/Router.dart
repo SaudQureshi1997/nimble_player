@@ -9,7 +9,7 @@ class Router {
       case '/':
         return MaterialPageRoute(builder: (_) => MainList());
       case 'search':
-        return slideFromRight(SearchList());
+        return fadeIn(SearchList());
       case 'show':
         return slideFromBottom(DetailedPlayer());
       default:
@@ -23,12 +23,25 @@ class Router {
     }
   }
 
+  static PageRouteBuilder fadeIn(Widget widget) {
+    return PageRouteBuilder(
+        pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation)  {
+          return widget;
+        },
+        transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+          Tween<double> tween = Tween<double>(begin: 0, end: 1);
+          return FadeTransition(opacity: animation.drive(tween), child: widget,);
+        },
+      transitionDuration: Duration(milliseconds: 100)
+    );
+  }
+
   static PageRouteBuilder slideFromRight(Widget widget) {
-    return PageRouteBuilder(pageBuilder: (BuildContext context,
-        Animation<double> animation, Animation<double> secondaryAnimation) {
-      return widget;
-    }, transitionsBuilder: (BuildContext context, Animation<double> animation,
-        Animation<double> secondaryAnimation, Widget child) {
+    return PageRouteBuilder(
+        pageBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation) {
+          return widget;
+        },
+        transitionsBuilder: (BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
       var tween = Tween<Offset>(begin: Offset(1.0, 0.0), end: Offset.zero)
           .chain(CurveTween(curve: Curves.easeIn));
       return SlideTransition(

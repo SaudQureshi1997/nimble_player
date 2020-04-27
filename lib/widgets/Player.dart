@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:nimble_player/models/PlayList.dart';
 import 'package:nimble_player/models/Song.dart';
 import 'package:nimble_player/widgets/RoudedImage.dart';
@@ -11,72 +12,108 @@ class Player extends StatelessWidget {
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
     return Consumer<PlayList>(
-      builder: (context, playlist, child) {
-        if (playlist.currentlyPlayingId == -1) {
+      builder: (context, playList, child) {
+        if (playList.currentlyPlayingId == -1) {
           return null;
         }
-        Song song = playlist.currentlyPlaying;
-        var image = song.albumCover.isEmpty
-            ? AssetImage(Song.defaultAlbumCover)
-            : FileImage(File(song.albumCover));
 
         return Positioned(
             bottom: 0,
             right: 0,
             child: Card(
               child: Container(
-                padding: EdgeInsets.all(5),
-                height: 70,
-                width: width / 1.02,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                width: width * 0.98,
+                color: Colors.grey.shade900,
+                child: Flex(
+                  direction: Axis.horizontal,
                   children: <Widget>[
-                    RoundedImage(image),
-                    SizedBox(
-                      width: (40/100)*width,
+                    Expanded(
+                      flex: 5,
                       child: InkWell(
+                        splashColor: Colors.white,
+                        highlightColor: Colors.white,
                         onTap: () => Navigator.pushNamed(context, 'show'),
-                        child: Wrap(
-                          direction: Axis.vertical,
-                          spacing: 6,
-                          crossAxisAlignment: WrapCrossAlignment.start,
-                          children: <Widget>[
-                            Text(
-                              song.title,
-                              overflow: TextOverflow.fade,
-                              maxLines: 1,
-                              style: Theme.of(context).textTheme.caption.copyWith(color: Colors.white),
-                            ),
-                            Wrap(
-                              spacing: 6,
-                              alignment: WrapAlignment.center,
-                              children: <Widget>[
-                                Icon(Icons.access_time, size: 12,),
-                                Text(
-                                  song.durationInSeconds.toStringAsFixed(2),
-                                  style: Theme.of(context).textTheme.caption.copyWith(color: Colors.white),
-                                )
-                              ],
-                            )
-                          ],
+                        child: Container(
+                          padding: EdgeInsets.symmetric(vertical: 5),
+                          child: songDetails(playList),
                         ),
                       ),
                     ),
-                    Wrap(
-                      direction: Axis.horizontal,
-                      children: <Widget>[
-                        actionButton(Icons.skip_previous, playlist.playPrevious),
-                        actionButton(song.playing ? Icons.pause : Icons.play_arrow,
-                            playlist.toggleSong),
-                        actionButton(Icons.skip_next, playlist.playNext)
-                      ],
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        padding: EdgeInsets.symmetric(vertical: 5),
+                        child: controls(playList),
+                      ),
                     )
                   ],
                 ),
               ),
-            )
+            ),
         );
-      }
+      });
+  }
+
+  Widget songDetails(PlayList playList) {
+    ImageProvider image;
+    Song song = playList.currentlyPlaying;
+    if (song.albumCover.isNotEmpty) {
+      image = FileImage(File(song.albumCover));
+    } else {
+      image = AssetImage(Song.defaultAlbumCover);
+    }
+
+    return Flex(
+      direction: Axis.horizontal,
+      children: <Widget>[
+        Expanded(
+          flex: 1,
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: 5),
+            child: Hero(
+              tag: 'SONG_IMAGE',
+              child: RoundedImage(
+                image,
+                heroTag: 'SONG_IMAGE',
+              ),
+            ),
+          ),
+        ),
+        Expanded(
+          flex: 3,
+          child: Wrap(
+            spacing: 3,
+            direction: Axis.vertical,
+            alignment: WrapAlignment.spaceAround,
+            crossAxisAlignment: WrapCrossAlignment.start,
+            children: <Widget>[
+              Text(song.title, overflow: TextOverflow.fade,),
+              Wrap(
+                spacing: 5,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: <Widget>[
+                  Text(song.albumName, overflow: TextOverflow.fade,),
+                  Icon(Icons.brightness_1, color: Colors.white, size: 5,),
+                  Text(song.durationInSeconds.toStringAsFixed(2), overflow: TextOverflow.fade,),
+                ],
+              ),
+            ],
+          ),
+        )
+      ],
+    );
+  }
+
+  Widget controls(PlayList playList) {
+    Song song = playList.currentlyPlaying;
+    return Wrap(
+      direction: Axis.horizontal,
+      children: <Widget>[
+        actionButton(Icons.skip_previous, playList.playPrevious),
+        actionButton(song.playing ? Icons.pause : Icons.play_arrow,
+            playList.toggleSong),
+        actionButton(Icons.skip_next, playList.playNext)
+      ],
     );
   }
 

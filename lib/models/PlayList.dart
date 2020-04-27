@@ -1,14 +1,13 @@
 import 'dart:io';
-import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
-import 'package:nimble_player/main.dart';
 import 'package:nimble_player/models/Song.dart';
+import 'package:nimble_player/utils/AudioPlayer.dart';
 import 'package:nimble_player/utils/AudioQuery.dart';
 
 class PlayList extends ChangeNotifier {
   final AudioQuery audioQuery = AudioQuery();
-  AudioPlayer player;
+  final AudioPlayer player = AudioPlayer();
   List<int> songIds = List<int>();
   List<Song> songs = List<Song>();
   bool isLoading = true;
@@ -16,11 +15,15 @@ class PlayList extends ChangeNotifier {
   int currentlyPlayingId = -1;
 
   PlayList() {
-    player = AudioPlayer();
     player.onPlayerCompletion.listen((_) {
       sleep(Duration(seconds: 2));
       playNext();
     });
+    player.onAudioPositionChanged.listen((Duration duration) {
+      currentlyPlaying.playingAt(duration.inMilliseconds);
+      notifyListeners();
+    });
+
     loadSongs();
   }
 
@@ -35,7 +38,7 @@ class PlayList extends ChangeNotifier {
       bool matched = song.title.toLowerCase().contains(name) ||
           song.albumName.toLowerCase().contains(name) ||
           song.artistName.toLowerCase().contains(name);
-      if (matched){
+      if (matched) {
         matchedSongs.add(song);
         sink.add(matchedSongs);
       }
@@ -54,8 +57,8 @@ class PlayList extends ChangeNotifier {
   }
 
   Future<void> switchSong(int id) async {
-    if ((currentlyPlaying?.playing ?? false) && currentlyPlayingId == id) {
-      await pauseSong();
+    if (currentlyPlayingId == id) {
+      await toggleSong();
       return;
     }
     await playSong(id);
@@ -84,32 +87,30 @@ class PlayList extends ChangeNotifier {
   }
 
   Future<void> playSong(int id, [bool silent = true]) async {
-    if (currentlyPlaying?.playing ?? false) {
-      currentlyPlaying.stop();
-    }
+    await stopSong();
     currentlyPlayingId = id;
     currentlyPlaying = findById(id);
-    player.onAudioPositionChanged.listen((Duration duration) {
-      currentlyPlaying.playingAt(duration.inMilliseconds);
-      notifyListeners();
-    });
-    currentlyPlaying.play();
-    await player.play(currentlyPlaying.path, isLocal: true);
+    await player.play(currentlyPlaying);
     if (!silent) {
       notifyListeners();
     }
   }
 
+  Future<void> resumeSong() async {
+    await player.resume(currentlyPlaying);
+    return;
+  }
+
   Future<void> pauseSong() async {
-    currentlyPlaying.pause();
-    await player.pause();
+    await player.pause(currentlyPlaying);
     notifyListeners();
   }
 
   Future<void> stopSong() async {
-    currentlyPlaying.playingAt(0);
-    currentlyPlaying.stop();
-    await player.stop();
+    currentlyPlaying?.playingAt(0);
+    if (currentlyPlaying?.playing == true) {
+      await player.stop(currentlyPlaying);
+    }
     notifyListeners();
   }
 
@@ -119,23 +120,21 @@ class PlayList extends ChangeNotifier {
     }
 
     if (currentlyPlaying.paused) {
-      currentlyPlaying.play();
-      await player.resume();
+      await player.resume(currentlyPlaying);
       notifyListeners();
       return;
     }
     if (currentlyPlaying.stopped) {
-      playSong(currentlyPlayingId);
+      await playSong(currentlyPlayingId);
       notifyListeners();
       return;
     }
 
-    pauseSong();
+    await pauseSong();
     notifyListeners();
   }
 
   Future<void> playNext() async {
-    stopSong();
     int currentIndex = songIds.indexOf(currentlyPlayingId);
     if (currentIndex == songs.length - 1) {
       await playSong(songs.elementAt(0).id);
@@ -145,31 +144,27 @@ class PlayList extends ChangeNotifier {
 
     currentlyPlayingId = songIds.elementAt(currentIndex + 1);
     currentlyPlaying = findById(currentlyPlayingId);
-    currentlyPlaying.play();
-    await player.play(currentlyPlaying.path);
+    await player.play(currentlyPlaying);
     notifyListeners();
   }
 
   Future<void> playPrevious() async {
-    stopSong();
     int currentIndex = songIds.indexOf(currentlyPlayingId);
     if (currentIndex == 0 || currentlyPlaying.playedDuration > 5000) {
-      restart();
+      await restart();
       return;
     }
 
     currentlyPlayingId = songIds.elementAt(currentIndex - 1);
     currentlyPlaying = findById(currentlyPlayingId);
-    currentlyPlaying.play();
-    await player.play(currentlyPlaying.path);
+    await player.play(currentlyPlaying);
     notifyListeners();
   }
 
   Future<void> restart() async {
-    stopSong();
+    await pauseSong();
     await player.seek(Duration(seconds: 0));
-    await player.play(currentlyPlaying.path);
-    currentlyPlaying.play();
+    toggleSong();
     return;
   }
 

@@ -31,7 +31,7 @@ class SearchListState extends State<SearchList>
     motionController = AnimationController(
         vsync: this, duration: Duration(milliseconds: 800), lowerBound: 0.8);
     animation =
-        CurvedAnimation(parent: motionController, curve: Curves.easeOut);
+        CurvedAnimation(parent: motionController, curve: Curves.bounceInOut);
     motionController.forward();
     motionController.addStatusListener((status) {
       if (AnimationStatus.completed == status) {

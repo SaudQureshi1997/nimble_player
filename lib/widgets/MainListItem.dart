@@ -42,24 +42,33 @@ class MainListItem extends StatelessWidget {
               borderRadius: BorderRadius.circular(10)),
         ),
         title: Text(
-          song.shortTitle,
+          song.title,
           style: isActive ? boldWhite : Theme.of(context).textTheme.subhead,
+          overflow: TextOverflow.ellipsis,
         ),
         subtitle: Wrap(
           spacing: 6,
           crossAxisAlignment: WrapCrossAlignment.center,
           children: <Widget>[
             Text(
-              song.albumName,
+              song.trimmedAlbumName,
               style: isActive ? boldWhite.copyWith(fontSize: 14) : Theme.of(context).textTheme.caption,
+              overflow: TextOverflow.fade,
             ),
-            Icon(
-              Icons.brightness_1,
-              size: 6,
-            ),
-            Text(
-              song.durationInSeconds.toStringAsFixed(2),
-              style: isActive ? boldWhite.copyWith(fontSize: 14) : Theme.of(context).textTheme.caption,
+            Wrap(
+              spacing: 3,
+              alignment: WrapAlignment.center,
+              crossAxisAlignment: WrapCrossAlignment.center,
+              children: <Widget>[
+                Icon(
+                  Icons.brightness_1,
+                  size: 6,
+                ),
+                Text(
+                  song.durationInSeconds.toStringAsFixed(2),
+                  style: isActive ? boldWhite.copyWith(fontSize: 14) : Theme.of(context).textTheme.caption,
+                )
+              ],
             )
           ],
         ),

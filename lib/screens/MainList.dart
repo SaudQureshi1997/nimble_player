@@ -32,6 +32,38 @@ class MainList extends StatelessWidget {
                         valueColor: AlwaysStoppedAnimation(Colors.white),
                         backgroundColor: Colors.transparent)));
           }
+          if (playlist.songs.length == 0) {
+            return Container(
+              decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                    Theme.of(context).accentColor,
+                    Theme.of(context).primaryColor,
+                    Theme.of(context).primaryColorDark
+                  ])),
+              child: Center(
+                child: Wrap(
+                  direction: Axis.vertical,
+                  alignment: WrapAlignment.center,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  spacing: 10,
+                  children: <Widget>[
+                    Icon(
+                      Icons.info_outline,
+                      color: Colors.white,
+                      size: 22,
+                    ),
+                    Text(
+                      "No music found",
+                      style: TextStyle(fontSize: 18),
+                    )
+                  ],
+                ),
+              ),
+            );
+          }
           return RefreshIndicator(
               color: Colors.white,
               backgroundColor: Theme.of(context).accentColor,

@@ -52,26 +52,17 @@ class DetailedPlayer extends StatelessWidget {
     ImageProvider image = song.albumCover.isEmpty
         ? AssetImage(Song.defaultAlbumCover)
         : FileImage(File(song.albumCover));
-    return Stack(
-      children: <Widget>[
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.transparent,
-              image: DecorationImage(image: image, fit: BoxFit.cover)),
-        ),
-        Container(
-          decoration: BoxDecoration(
-              color: Colors.white,
-              gradient: LinearGradient(
-                  begin: FractionalOffset.topLeft,
-                  end: FractionalOffset.bottomLeft,
-                  colors: [
-                    Colors.black.withOpacity(0.5),
-                    Colors.black.withOpacity(0.7),
-                    Colors.black.withOpacity(0.9),
-                  ])),
-        )
-      ],
+    return Hero(
+      tag: 'SONG_IMAGE',
+      child: Container(
+        decoration: BoxDecoration(
+            color: Colors.transparent,
+            image: DecorationImage(
+                image: image,
+                fit: BoxFit.cover,
+                colorFilter: ColorFilter.mode(
+                    Colors.black.withOpacity(0.6), BlendMode.darken))),
+      ),
     );
   }
 
@@ -83,14 +74,17 @@ class DetailedPlayer extends StatelessWidget {
           Wrap(
             spacing: 10,
             direction: Axis.vertical,
+            crossAxisAlignment: WrapCrossAlignment.center,
             children: <Widget>[
               Text(
                 song.title,
                 style: Theme.of(context).textTheme.title,
+                overflow: TextOverflow.ellipsis,
               ),
               Text(
                 song.albumName,
                 style: Theme.of(context).textTheme.subhead,
+                overflow: TextOverflow.ellipsis,
               )
             ],
           ),
@@ -106,22 +100,21 @@ class DetailedPlayer extends StatelessWidget {
       child: Column(
         children: <Widget>[
           Slider(
-              activeColor: Colors.white,
-              inactiveColor: Colors.white70,
-              min: 0.0,
-              max: song.duration.toDouble(),
-              value: song.playedDuration.toDouble(),
-              onChangeEnd: (double duration) async {
-                await playList.playSong(song.id);
-              },
-              onChangeStart: (double duration) async {
-                await playList.pauseSong();
-              },
-              onChanged: (double duration) {
-                playList.playFrom(duration.ceil());
-              },
-              ),
-              
+            activeColor: Colors.white,
+            inactiveColor: Colors.white70,
+            min: 0.0,
+            max: song.duration.toDouble(),
+            value: song.playedDuration.toDouble(),
+            onChangeEnd: (double duration) async {
+              await playList.resumeSong();
+            },
+            onChangeStart: (double duration) async {
+              await playList.pauseSong();
+            },
+            onChanged: (double duration) {
+              playList.playFrom(duration.ceil());
+            },
+          ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[

@@ -1,6 +1,22 @@
 import 'package:flutter/material.dart';
 
-class SearchButton extends StatelessWidget {
+class SearchButton extends StatefulWidget {
+  @override
+  SearchButtonState createState()  => SearchButtonState();
+}
+
+class SearchButtonState extends State<SearchButton> {
+  Duration duration = Duration(milliseconds: 100);
+  double width;
+  double height;
+
+  @override
+  void initState() {
+    width = 100;
+    height = 70;
+    super.initState();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Positioned(
@@ -11,16 +27,16 @@ class SearchButton extends StatelessWidget {
         clipBehavior: Clip.antiAlias,
         borderRadius: BorderRadius.only(
           topLeft: Radius.circular(10),
-            bottomLeft: Radius.circular(30),
-//            bottomRight: Radius.circular(20)
+          bottomLeft: Radius.circular(30),
         ),
         child: InkWell(
-          onTap: () {
-            Navigator.of(context).pushNamed('search');
-          },
-          child: Container(
-            width: 100,
-            height: 70,
+          onTap: animateScale,
+          child: AnimatedContainer(
+            duration: Duration(milliseconds: 200),
+            onEnd: navigate,
+            curve: Curves.easeOut,
+            width: width,
+            height: height,
             decoration: BoxDecoration(
                 gradient: LinearGradient(
                     begin: Alignment.topLeft,
@@ -37,5 +53,22 @@ class SearchButton extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  void animateScale() {
+    setState(() {
+      width = MediaQuery.of(context).size.width;
+      height = MediaQuery.of(context).size.height;
+    });
+  }
+
+  void navigate() {
+    if (width == MediaQuery.of(context).size.width) {
+      Navigator.of(context).pushNamed('search').then((_) => setState(() {
+          width = 100;
+          height = 70;
+        })
+      );
+    }
   }
 }

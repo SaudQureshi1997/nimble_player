@@ -50,6 +50,8 @@ class Song {
     return _id;
   }
 
+  SongState get state => _state;
+
   bool get playing {
     return _state == SongState.PLAYING;
   }
@@ -62,14 +64,18 @@ class Song {
     return _state == SongState.PAUSED;
   }
 
-  String get albumName {
+  String get trimmedAlbumName {
     if (_album.isNotEmpty) {
-      return _album.length > 30 ? _album.substring(0, 30) + '...' : _album;
+      return _album.length > 33 ? _album.substring(0, 33) + '...' : _album;
     }
 
     return _artistName.length > 30
         ? _artistName.substring(0, 30) + '...'
         : _artistName;
+  }
+
+  String get albumName {
+    return _album.isEmpty ? _artistName: _album;
   }
 
   double get durationInSeconds {
