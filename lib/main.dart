@@ -25,7 +25,6 @@ List<Song> parseSongInfo(List<SongInfo> songList) {
 }
 
 class MyApp extends StatelessWidget {
-
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
@@ -47,12 +46,10 @@ class MyApp extends StatelessWidget {
             ),
             dividerColor: Colors.black12,
             iconTheme: IconThemeData(color: Colors.white, size: 20),
-            textTheme:
-            TextTheme(
+            textTheme: TextTheme(
               subhead: TextStyle(color: Colors.white70, fontSize: 17),
               caption: TextStyle(color: Colors.grey, fontSize: 14),
-            )
-        ),
+            )),
         onGenerateRoute: Router.generateRoutes,
         home: MainList(),
       ),

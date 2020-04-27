@@ -1,6 +1,8 @@
 import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_exoplayer/audio_notification.dart';
+import 'package:flutter_exoplayer/audioplayer.dart' as ExoPlayer;
 import 'package:nimble_player/models/Song.dart';
 import 'package:nimble_player/utils/AudioPlayer.dart';
 import 'package:nimble_player/utils/AudioQuery.dart';
@@ -22,6 +24,40 @@ class PlayList extends ChangeNotifier {
     player.onAudioPositionChanged.listen((Duration duration) {
       currentlyPlaying.playingAt(duration.inMilliseconds);
       notifyListeners();
+    });
+    player.onNotificationActionCallback.listen((notificationActionName) {
+      switch (notificationActionName) {
+        case NotificationActionName.NEXT:
+          playNext();
+          break;
+        case NotificationActionName.PREVIOUS:
+          playPrevious();
+          break;
+        case NotificationActionName.PAUSE:
+          pauseSong();
+          break;
+        case NotificationActionName.PLAY:
+          resumeSong();
+          break;
+        default:
+      }
+    });
+
+    player.onPlayerStateChanged.listen((state) {
+      switch (state) {
+        case ExoPlayer.PlayerState.PAUSED:
+          currentlyPlaying.pause();
+          break;
+        case ExoPlayer.PlayerState.PLAYING:
+          currentlyPlaying.play();
+          break;
+        case ExoPlayer.PlayerState.RELEASED:
+        case ExoPlayer.PlayerState.STOPPED:
+          currentlyPlaying.stop();
+          break;
+        case ExoPlayer.PlayerState.BUFFERING:
+        case ExoPlayer.PlayerState.COMPLETED:
+      }
     });
 
     loadSongs();
@@ -97,19 +133,19 @@ class PlayList extends ChangeNotifier {
   }
 
   Future<void> resumeSong() async {
-    await player.resume(currentlyPlaying);
+    await player.resume();
     return;
   }
 
   Future<void> pauseSong() async {
-    await player.pause(currentlyPlaying);
+    await player.pause();
     notifyListeners();
   }
 
   Future<void> stopSong() async {
     currentlyPlaying?.playingAt(0);
     if (currentlyPlaying?.playing == true) {
-      await player.stop(currentlyPlaying);
+      await player.stop();
     }
     notifyListeners();
   }
@@ -120,7 +156,7 @@ class PlayList extends ChangeNotifier {
     }
 
     if (currentlyPlaying.paused) {
-      await player.resume(currentlyPlaying);
+      await player.resume();
       notifyListeners();
       return;
     }

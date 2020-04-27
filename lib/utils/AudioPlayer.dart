@@ -6,6 +6,7 @@ class AudioPlayer {
   ExoPlayer.AudioPlayer player;
   AudioPlayer() {
     player = ExoPlayer.AudioPlayer();
+    player.onPlayerError.listen((message) => print("Error: $message"));
   }
 
   Stream<void> get onPlayerCompletion {
@@ -20,32 +21,27 @@ class AudioPlayer {
     return player.onPlayerStateChanged;
   }
 
-  Future<ExoPlayer.Result> play(Song song) {
-    song.play();
-    return player.play(
-      song.path,
-      respectAudioFocus: true,
-      playerMode: ExoPlayer.PlayerMode.BACKGROUND,
-    );
+  Stream<NotificationActionName> get onNotificationActionCallback {
+    return player.onNotificationActionCallback;
   }
 
-  Future<ExoPlayer.Result> moveToBackGround(Song song) {
-    song.pause();
-    player.release();
-    player.seekPosition(Duration(milliseconds: song.duration));
+  Future<ExoPlayer.Result> play(Song song, {Duration position}) async {
     return player.play(song.path,
+        respectAudioFocus: true,
         playerMode: ExoPlayer.PlayerMode.FOREGROUND,
+        position: position,
         audioNotification: AudioNotification(
-          smallIconFileName: "assets/images/thumder_64.png",
+          smallIconFileName: '@mipmap/ic_launcher',
           title: song.title,
           subTitle: song.albumName,
           largeIconUrl: song.albumCover,
           isLocal: true,
+          notificationActionCallbackMode: NotificationActionCallbackMode.CUSTOM,
+          notificationDefaultActions: NotificationDefaultActions.ALL,
         ));
   }
 
-  Future<ExoPlayer.Result> pause(Song song) {
-    song.pause();
+  Future<ExoPlayer.Result> pause() {
     return player.pause();
   }
 
@@ -53,13 +49,11 @@ class AudioPlayer {
     return player.seekPosition(duration);
   }
 
-  Future<ExoPlayer.Result> stop(Song song) {
-    song.stop();
+  Future<ExoPlayer.Result> stop() {
     return player.release();
   }
 
-  Future<ExoPlayer.Result> resume(Song song) {
-    song.play();
+  Future<ExoPlayer.Result> resume() {
     return player.resume();
   }
 
